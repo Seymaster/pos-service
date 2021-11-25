@@ -9,7 +9,7 @@ class MerchantRepository extends Repository{
     }
 
     nonMetaFields(){
-        return ["userId","name","industry","otherName","sex","dateOfBirth"]
+        return ["userId","name","industry","email","phoneNumber"]
     }
 }
 

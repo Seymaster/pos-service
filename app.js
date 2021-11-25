@@ -6,6 +6,7 @@ const logger  = require("morgan");
 const cors    = require("cors");
 const mongoose = require("mongoose")
 const config   = require("./config/mongo");
+const merchantRouter = require("./routes/merchant")
 
 mongoose.Promise = global.Promise;
 
@@ -18,7 +19,7 @@ app.listen(PORT, (err)=> {
 app.use(logger("dev"));
 app.use(express.json());
 app.use(cors({origin: "*"}));
-// app.use("/events", webookRouter)
+app.use("/api/v1", merchantRouter)
 
 
 mongoose.connect(config.dbUrl, {

@@ -10,7 +10,8 @@ const Schema    = mongoose.Schema({
     industry: {type: String, require: true},
     email: {type: String, require: true},
     phoneNumber: {type: String, require: true},
-    dateCreated: {type: Date, default: Date.now}
+    createdAt: {type: Date, default: Date.now},
+    updatedAt: {type: Date, default: null}
 }, 
 {
     toJSON: {

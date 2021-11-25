@@ -10,8 +10,9 @@ const { getPin } = require("../controllers/pin")
  */
 
 exports.createMerchant = async (req,res,next)=>{
-    let {userId, title, MerchantType, MerchantLocation, start, end, MerchantDesc, MerchantImage} = req.body;
-    let newMerchant = {userId, title, MerchantType, MerchantLocation, start, end, MerchantDesc, MerchantImage};
+    let {userId, name, industry, email, phoneNumber } = req.body;
+    let paymentId = getPin()
+    let newMerchant = {userId, name, industry, email, paymentId,phoneNumber, };
     try{
         let Merchant = await MerchantRepository.create(newMerchant)
         return res.status(200).send({
@@ -38,3 +39,39 @@ exports.createMerchant = async (req,res,next)=>{
             }
         };
 }
+
+exports.fetchMerchant = async (req,res,next)=>{
+    let {...query} = req.query;
+    let {page,limit } = req.query;
+    page = page || 1;
+    limit = limit || 100;
+    try{
+        let Merchant = await MerchantRepository.all(query, {_id: -1}, page, limit)
+        if(Merchant === null){
+            return res.status(400).send({
+                status: 404,
+                message: `No profile found for ${query}`,
+                data: Merchant
+            })
+        }
+        else{
+            message = `Merchant for ${query} loaded successfully`
+            return createSuccessResponse(res, Merchant ,message)
+        }
+    }catch(err){
+        return res.status(400).send({
+            status: 404,
+            message: "Not Found",
+            error: err
+        })
+    }
+}
+
+
+// exports.fetchRevenue = async (req,res,next)=>{
+//             return res.status(400).send({
+//                 status: 404,
+//                 message: "Revenue Loaded Successfully",
+//                 data: Merchant
+//             })
+//         }
