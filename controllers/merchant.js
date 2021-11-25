@@ -9,6 +9,22 @@ const { getPin } = require("../controllers/pin")
  * @return {Promise<*>}
  */
 
+ global.createSuccessResponse = (res, data, message, code= 200, isPaginated = false) => {
+    if (isPaginated || (data && data.docs)) {
+        data.data = data.docs;
+        delete data.docs;
+        delete data.pages
+        delete data.limit
+        data.status = code
+        data.message = message;
+        data.page = parseInt(data.page);
+        return res.status(code).json(data);
+    }
+    return res.status(code).json({data});
+};
+
+
+
 exports.createMerchant = async (req,res,next)=>{
     let {userId, name, industry, email, phoneNumber } = req.body;
     let paymentId = getPin()
@@ -55,7 +71,7 @@ exports.fetchMerchant = async (req,res,next)=>{
             })
         }
         else{
-            message = `Merchant for ${query} loaded successfully`
+            message = `Merchant loaded successfully`
             return createSuccessResponse(res, Merchant ,message)
         }
     }catch(err){
