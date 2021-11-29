@@ -84,10 +84,35 @@ exports.fetchMerchant = async (req,res,next)=>{
 }
 
 
-// exports.fetchRevenue = async (req,res,next)=>{
-//             return res.status(400).send({
-//                 status: 404,
-//                 message: "Revenue Loaded Successfully",
-//                 data: Merchant
-//             })
-//         }
+let kpis = [
+    {totalRevenue: {"total": 408000}},
+    {totalCustomer: {"total": 103}},
+    {totalTransactions: {"total": 96}},
+    {payoutBalance: {"total": 23000}}
+]
+
+exports.fetchKpis = async (req,res,next)=>{
+            return res.status(200).send({
+                status: 200,
+                message: "Revenue Loaded Successfully",
+                data: kpis
+            })
+        }
+
+let graphData = [
+    {
+       data:  { time: "2021-11-01T18:45", revenue: 36283,
+                time: "2021-11-02T18:45", revenue: 536722,
+                time: "2021-11-03T18:45", revenue: 378488,
+                time: "2021-11-04T18:45", revenue: 21882,
+                time: "2021-11-02T18:45", revenue: 536722 }
+    }
+]
+
+exports.fetchKpis = async (req,res,next)=>{
+    return res.status(200).send({
+        status: 200,
+        message: "Revenue Loaded Successfully",
+        data: graphData
+    })
+}

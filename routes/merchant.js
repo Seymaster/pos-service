@@ -19,7 +19,7 @@ const merchantController = require("../controllers/merchant")
 router.post("/merchant",  merchantController.createMerchant)
 // validate(schemas.eventSchema.eventPost, 'body')
 
-// router.get("/event/:eventId", eventController.getEventById)
+router.get("/report", merchantController.fetchKpis)
 
 router.get("/merchant", merchantController.fetchMerchant)
 
