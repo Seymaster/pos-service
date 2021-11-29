@@ -100,16 +100,14 @@ exports.fetchKpis = async (req,res,next)=>{
         }
 
 let graphData = [
-    {
-       data:  { time: "2021-11-01T18:45", revenue: 36283,
-                time: "2021-11-02T18:45", revenue: 536722,
-                time: "2021-11-03T18:45", revenue: 378488,
-                time: "2021-11-04T18:45", revenue: 21882,
-                time: "2021-11-02T18:45", revenue: 536722 }
-    }
+        {time: "2021-11-01T18:45", revenue: 36283},
+        {time: "2021-11-02T18:45", revenue: 536722},
+        {time: "2021-11-03T18:45", revenue: 378488},
+        {time: "2021-11-04T18:45", revenue: 21882},
+        {time: "2021-11-02T18:45", revenue: 536722}
 ]
 
-exports.fetchKpis = async (req,res,next)=>{
+exports.fetchGraphData = async (req,res,next)=>{
     return res.status(200).send({
         status: 200,
         message: "Revenue Loaded Successfully",

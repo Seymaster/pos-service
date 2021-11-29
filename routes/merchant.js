@@ -21,6 +21,8 @@ router.post("/merchant",  merchantController.createMerchant)
 
 router.get("/report", merchantController.fetchKpis)
 
+router.get("/graph", merchantController.fetchGraphData)
+
 router.get("/merchant", merchantController.fetchMerchant)
 
 module.exports = router;
