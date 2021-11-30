@@ -63,11 +63,13 @@ exports.fetchMerchant = async (req,res,next)=>{
     limit = limit || 100;
     try{
         let Merchant = await MerchantRepository.all(query, {_id: -1}, page, limit)
-        if(Merchant === null){
+        // console.log(typeof(Merchant.docs))
+        if(Merchant.docs.length === 0){
+            console.log(query)
             return res.status(400).send({
                 status: 404,
-                message: `No profile found for ${query}`,
-                data: Merchant
+                message: "No Merchant found with the input",
+                data: Merchant.docs
             })
         }
         else{
@@ -75,7 +77,7 @@ exports.fetchMerchant = async (req,res,next)=>{
             return createSuccessResponse(res, Merchant ,message)
         }
     }catch(err){
-        return res.status(400).send({
+        return res.status(404).send({
             status: 404,
             message: "Not Found",
             error: err
