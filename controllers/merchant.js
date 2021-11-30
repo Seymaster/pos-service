@@ -63,9 +63,7 @@ exports.fetchMerchant = async (req,res,next)=>{
     limit = limit || 100;
     try{
         let Merchant = await MerchantRepository.all(query, {_id: -1}, page, limit)
-        // console.log(typeof(Merchant.docs))
         if(Merchant.docs.length === 0){
-            console.log(query)
             return res.status(400).send({
                 status: 404,
                 message: "No Merchant found with the input",
