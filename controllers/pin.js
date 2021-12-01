@@ -9,4 +9,5 @@ function getPin() {
        }
     }
 
-   module.exports = { getPin }
+    
+module.exports = { getPin }
