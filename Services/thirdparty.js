@@ -1,10 +1,10 @@
+"use strict"
+
 const fetch = require("node-fetch");
-const redirect_url = process.env.stagingRedirect
 const baseUrl = process.env.mainbaseUrl
 const clientId  = process.env.clientId
 const clientSecret = process.env.clientSecret
 
-console.log("here")
 async function transferAuth(walletId){
     let result;
     let requestOptions = {
@@ -26,9 +26,9 @@ async function transferAuth(walletId){
     return await result;
 }
 
-let walletId = "46657883883"
-transferAuth(walletId)
-.then(data=> console.log(data))
-.catch(err=> console.log(err))
+// let walletId = "46657883883"
+// transferAuth(walletId)
+// .then(data=> console.log(data))
+// .catch(err=> console.log(err))
 
 module.exports = { transferAuth }

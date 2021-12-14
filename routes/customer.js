@@ -11,22 +11,15 @@
 */
 const express = require("express");
 const router  = express.Router();
-const merchantController = require("../controllers/merchant")
 const customerController = require("../controllers/customer")
 // const schemas = require("../middleware/schemas");
 // const { validate } = require("../middleware/helper");
 
 
-router.post("/merchant",  merchantController.createMerchant)
+router.post("/transaction",  customerController.createTransaction)
 // validate(schemas.eventSchema.eventPost, 'body')
 
-// To get all transactions by MechantId/customerId
-router.get("/transactions", customerController.getTransactionById)
+// router.get("/report", customerController.fetchKpis)
 
-// router.get("/graph", merchantController.fetchGraphData)
-
-router.get("/merchant", merchantController.fetchMerchant)
-
-router.post("/payout", merchantController.merchantPayout)
 
 module.exports = router;

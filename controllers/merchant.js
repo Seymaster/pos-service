@@ -1,5 +1,7 @@
 const MerchantRepository = require("../models/MerchantRepository")
 const { getPin } = require("../controllers/pin")
+const { checkWallet, initiateWithdraw } = require("../Services/billing")
+const { transferAuth } = require("../Services/thirdparty")
 
 /**
  * Create Merchant and CRUD details
@@ -46,7 +48,7 @@ exports.createMerchant = async (req,res,next)=>{
                 error: error
             });
         }else{
-            console.log(err)
+            // console.log(err)
             return res.status(400).send({
             status:400,
             message: "Bad Request",
@@ -84,33 +86,39 @@ exports.fetchMerchant = async (req,res,next)=>{
 }
 
 
-let kpis = [
-    {totalRevenue: {"total": 408000}},
-    {totalCustomer: {"total": 103}},
-    {totalTransactions: {"total": 96}},
-    {payoutBalance: {"total": 23000}}
-]
 
-exports.fetchKpis = async (req,res,next)=>{
+
+exports.merchantPayout = async (req, res, next) =>{
+    let {transferAuthId, merchantId, amount} = req.body;
+    try{
+        let wallet = await checkWallet(merchantId)
+        console.log(wallet)
+        // if(wallet.__embedded.wallet === []){
+        //     return res.status(404).send({
+        //         status: 400,
+        //         message: "There is no Wallet Balance for this Merchant"
+        //     })
+        // }
+        try{
+            let payout = await initiateWithdraw(transferAuthId,merchantId,amount)
             return res.status(200).send({
                 status: 200,
-                message: "Revenue Loaded Successfully",
-                data: kpis
+                message: "Payout Balance Loaded Successfully",
+                data: payout
+            })
+        }catch(err){
+            return res.status(404).send({
+                status: 404,
+                message: "Not Found",
+                error: err
             })
         }
-
-let graphData = [
-        {time: "2021-11-01T18:45", revenue: 36283},
-        {time: "2021-11-02T18:45", revenue: 536722},
-        {time: "2021-11-03T18:45", revenue: 378488},
-        {time: "2021-11-04T18:45", revenue: 21882},
-        {time: "2021-11-02T18:45", revenue: 536722}
-]
-
-exports.fetchGraphData = async (req,res,next)=>{
-    return res.status(200).send({
-        status: 200,
-        message: "Revenue Loaded Successfully",
-        data: graphData
-    })
+    }catch(err){
+        return res.status(404).send({
+            status: 404,
+            message: "Not Found",
+            error: err
+        })
+    }
 }
+
