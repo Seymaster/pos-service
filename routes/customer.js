@@ -19,7 +19,7 @@ const customerController = require("../controllers/customer")
 router.post("/transaction",  customerController.createTransaction)
 // validate(schemas.eventSchema.eventPost, 'body')
 
-// router.get("/report", customerController.fetchKpis)
+router.get("/customer", customerController.getCustomerByMerchantId)
 
 
 module.exports = router;
