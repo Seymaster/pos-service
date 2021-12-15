@@ -5,7 +5,7 @@ const mongoosePaginate = require("mongoose-paginate");
 
 const Schema    = mongoose.Schema({
     reference: {type: String, require: true},
-    productId: {type: String, require: false, default: null},
+    invoiceId: {type: String, require: false, default: null},
     customerId: {type: String, require: true},
     phoneNumber: {type: String, require: true},
     paymentCode: {type: String, require: true},

@@ -17,16 +17,16 @@ const customerController = require("../controllers/customer")
 // const { validate } = require("../middleware/helper");
 
 
-router.post("/merchant",  merchantController.createMerchant)
+router.post("/merchants",  merchantController.createMerchant)
 // validate(schemas.eventSchema.eventPost, 'body')
 
 // To get all transactions by MechantId/customerId
-router.get("/transactions", customerController.getTransactionById)
+router.get("/transactions", customerController.getTransaction)
 
 // router.get("/graph", merchantController.fetchGraphData)
 
-router.get("/merchant", merchantController.fetchMerchant)
+router.get("/merchants", merchantController.fetchMerchant)
 
-router.post("/payout", merchantController.merchantPayout)
+router.post("/merchant/withdraw", merchantController.merchantWithdraw)
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const MerchantRepository = require("../models/MerchantRepository")
 const { getPin } = require("../controllers/pin")
 const { checkWallet, initiateWithdraw } = require("../Services/billing")
+const { createProduct } = require("../Services/product");
 const { transferAuth } = require("../Services/thirdparty")
 
 /**
@@ -30,7 +31,11 @@ const { transferAuth } = require("../Services/thirdparty")
 exports.createMerchant = async (req,res,next)=>{
     let {userId, name, industry, email, phoneNumber } = req.body;
     let paymentCode = getPin()
-    let newMerchant = {userId, name, industry, email, paymentCode,phoneNumber, };
+    let productName = "ussd-"+ userId
+    let product = await createProduct(productName, userId);
+    product = JSON.parse(product);
+    let productId = product.data.id
+    let newMerchant = {userId, productId, name, industry, email, paymentCode, phoneNumber };
     try{
         let Merchant = await MerchantRepository.create(newMerchant)
         return res.status(200).send({
@@ -88,10 +93,11 @@ exports.fetchMerchant = async (req,res,next)=>{
 
 
 
-exports.merchantPayout = async (req, res, next) =>{
-    let {transferAuthId, merchantId, amount} = req.body;
+exports.merchantWithdraw = async (req, res, next) =>{
+    let {transferAuthId, productId, amount} = req.body;
     try{
-        let wallet = await checkWallet(merchantId)
+        // check wallet from merchant productId
+        let wallet = await checkWallet(productId)
         wallet = JSON.parse(wallet)
         let wallets = wallet._embedded.wallets
         if(wallets.length === 0){
@@ -102,10 +108,10 @@ exports.merchantPayout = async (req, res, next) =>{
         }
         else{   
             try{
-                let payout = await initiateWithdraw(transferAuthId,merchantId,amount)
+                let payout = await initiateWithdraw(transferAuthId,productId,amount)
                 return res.status(200).send({
                     status: 200,
-                    message: "Payout Balance initiated Successfully",
+                    message: "Balance Withdraw Successfully",
                     data: payout
                 })
             }catch(err){

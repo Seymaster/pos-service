@@ -2,17 +2,23 @@ const CustomerRepository = require("../models/CustomerRepository");
 const TransactionRepository = require("../models/TransactionRepository");
 const MerchantRepository = require("../models/MerchantRepository");
 const { createInvoice } = require("../Services/invoice");
-const { createProduct } = require("../Services/product");
-const { initiateCharge } = require("../Services/payment");
+const { initiateCharge, verifyPayment } = require("../Services/payment");
 const { createUser } = require("../Services/user");
 const uuid = require("uuid");
 
 
 exports.initiatePayment = async (req,res,next)=>{
-    let {phoneNumber, paymentCode, amount, paymentAuthId } = req.body;
+    let {phoneNumber, paymentCode, amount, paymentAuthId, provider } = req.body;
+    provider = provider || "providus"
     amount = amount *100
     let reference = uuid.v4();
     let merchant = await MerchantRepository.findOne({paymentCode: paymentCode})
+    if(!merchant){
+            return res.status(403).send({
+                status:403,
+                message: "No Merchant with this Payment Code"
+            })
+        }
     let merchantId = merchant.userId
     let customerId;
     let customer = await CustomerRepository.findOne({phoneNumber: phoneNumber})
@@ -31,21 +37,17 @@ exports.initiatePayment = async (req,res,next)=>{
             await CustomerRepository.create(newCustomer)
         }
     customerId = customer.userId
-    let newTransaction = {reference, customerId, phoneNumber, paymentCode, merchantId, amount }
-    console.log(newTransaction)
-    await TransactionRepository.create(newTransaction);
     try {
-        let name = "ussd-"+ merchantId
-        let product = await createProduct(name, merchantId);
-        product = JSON.parse(product);
-        let productId = product.data.id
+        let productId = merchant.productId
         let invoice = await createInvoice(productId,customerId, amount)
         invoice = JSON.parse(invoice)
         let invoiceId = invoice.data.id
-        let payment = await initiateCharge(customerId,amount,paymentAuthId,reference,invoiceId)
+        let newTransaction = {reference, customerId, phoneNumber, paymentCode, merchantId, amount, invoiceId}
+        await TransactionRepository.create(newTransaction);
+        let payment = await initiateCharge(customerId,amount,paymentAuthId,reference,invoiceId,provider)
         payment = JSON.parse(payment)
         return res.status(200).send({
-            data: payment.data.transactionId
+            data: reference
         })
     } catch (error) {
         console.log(error)
@@ -57,12 +59,24 @@ exports.initiatePayment = async (req,res,next)=>{
 
 
 // To verify Payment
-exports.createTransaction = async (req,res,next)=>{
+exports.verifyPayment = async (req,res,next)=>{
+    const { reference, code } = req.body;
+    try {
+        let verify = await verifyPayment(reference,code); 
+        return res.status(200).send({
+            data: verify
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(400).send({
+            message: "Bad Request"
+        })
+    }
 
 }
 
 // To get all transaction for a Particular merchant/customer with Id
-exports.getTransactionById = async (req,res,next)=>{
+exports.getTransaction = async (req,res,next)=>{
     let {...query} = req.query;
     let {page,limit } = req.query;
     page = page || 1;
