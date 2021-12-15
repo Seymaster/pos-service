@@ -12,12 +12,12 @@
 const express = require("express");
 const router  = express.Router();
 const customerController = require("../controllers/customer")
-// const schemas = require("../middleware/schemas");
-// const { validate } = require("../middleware/helper");
+const schema = require("../middleware/schema");
+const { validate } = require("../middleware/helper");
 
 
-router.post("/pay/initiate",  customerController.initiatePayment);
-// validate(schemas.eventSchema.eventPost, 'body')
+router.post("/pay/initiate", validate(schema.paymentSchema.paymentPost, 'body') ,customerController.initiatePayment);
+
 
 router.post("/pay/verify",  customerController.verifyPayment);
 

@@ -20,7 +20,6 @@ exports.initiatePayment = async (req,res,next)=>{
             })
         }
     let merchantId = merchant.userId
-    let customerId;
     let customer = await CustomerRepository.findOne({phoneNumber: phoneNumber})
         if(!customer){
             let { user } = await createUser(phoneNumber);
@@ -36,7 +35,8 @@ exports.initiatePayment = async (req,res,next)=>{
             let newCustomer = {userId: customerId, merchantId,phoneNumber}
             await CustomerRepository.create(newCustomer)
         }
-    customerId = customer.userId
+        let custom = await CustomerRepository.findOne({phoneNumber: phoneNumber})
+        let customerId = custom.userId
     try {
         let productId = merchant.productId
         let invoice = await createInvoice(productId,customerId, amount)
