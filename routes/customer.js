@@ -12,8 +12,8 @@
 const express = require("express");
 const router  = express.Router();
 const customerController = require("../controllers/customer")
-const schema = require("../middleware/schema");
-const { validate } = require("../middleware/helper");
+const schema = require("../Middleware/schema");
+const { validate } = require("../Middleware/helper");
 
 
 router.post("/pay/initiate", validate(schema.paymentSchema.paymentPost, 'body') ,customerController.initiatePayment);

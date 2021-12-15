@@ -13,8 +13,8 @@ const express = require("express");
 const router  = express.Router();
 const merchantController = require("../controllers/merchant")
 const customerController = require("../controllers/customer")
-const schema = require("../middleware/schema");
-const { validate } = require("../middleware/helper");
+const schema = require("../Middleware/schema");
+const { validate } = require("../Middleware/helper");
 
 
 router.post("/merchants", validate(schema.merchantSchema.merchantPost, 'body'),  merchantController.createMerchant)
