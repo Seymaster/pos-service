@@ -4,13 +4,14 @@ const clientId  = process.env.clientId
 const clientSecret = process.env.clientSecret
 
 
-async function initiateCharge(paymentAuthId,userId,amount,invoiceId){
+async function initiateCharge(userId,amount,paymentAuthId,reference,invoiceId){
     let result;
     let urlencoded =  {
                         
                         "userId": userId,
                         "amount": amount,
                         "paymentAuthId": paymentAuthId,
+                        "transactionReference": reference,
                         "narration": "merchant",
                         "invoiceId": invoiceId
                     }

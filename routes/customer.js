@@ -16,10 +16,10 @@ const customerController = require("../controllers/customer")
 // const { validate } = require("../middleware/helper");
 
 
-router.post("/transaction",  customerController.createTransaction)
+router.post("/pay/initiate",  customerController.initiatePayment)
 // validate(schemas.eventSchema.eventPost, 'body')
 
-router.get("/customer", customerController.getCustomerByMerchantId)
+router.get("/customer", customerController.getCustomers)
 
 
 module.exports = router;

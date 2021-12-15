@@ -29,8 +29,8 @@ const { transferAuth } = require("../Services/thirdparty")
 
 exports.createMerchant = async (req,res,next)=>{
     let {userId, name, industry, email, phoneNumber } = req.body;
-    let paymentId = getPin()
-    let newMerchant = {userId, name, industry, email, paymentId,phoneNumber, };
+    let paymentCode = getPin()
+    let newMerchant = {userId, name, industry, email, paymentCode,phoneNumber, };
     try{
         let Merchant = await MerchantRepository.create(newMerchant)
         return res.status(200).send({
@@ -92,26 +92,29 @@ exports.merchantPayout = async (req, res, next) =>{
     let {transferAuthId, merchantId, amount} = req.body;
     try{
         let wallet = await checkWallet(merchantId)
-        console.log(wallet)
-        // if(wallet.__embedded.wallet === []){
-        //     return res.status(404).send({
-        //         status: 400,
-        //         message: "There is no Wallet Balance for this Merchant"
-        //     })
-        // }
-        try{
-            let payout = await initiateWithdraw(transferAuthId,merchantId,amount)
-            return res.status(200).send({
-                status: 200,
-                message: "Payout Balance Loaded Successfully",
-                data: payout
+        wallet = JSON.parse(wallet)
+        let wallets = wallet._embedded.wallets
+        if(wallets.length === 0){
+            return res.status(400).send({
+                status: 400,
+                message: "There is no Wallet Balance for this Merchant"
             })
-        }catch(err){
-            return res.status(404).send({
-                status: 404,
-                message: "Not Found",
-                error: err
-            })
+        }
+        else{   
+            try{
+                let payout = await initiateWithdraw(transferAuthId,merchantId,amount)
+                return res.status(200).send({
+                    status: 200,
+                    message: "Payout Balance initiated Successfully",
+                    data: payout
+                })
+            }catch(err){
+                return res.status(404).send({
+                    status: 404,
+                    message: "Not Found",
+                    error: err
+                })
+            }
         }
     }catch(err){
         return res.status(404).send({

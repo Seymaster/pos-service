@@ -9,7 +9,7 @@ class CustomerRepository extends Repository{
     }
 
     nonMetaFields(){
-        return ["userId","phoneNumber","paymentCode"]
+        return ["userId","phoneNumber"]
     }
 }
 
