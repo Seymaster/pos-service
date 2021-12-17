@@ -132,3 +132,30 @@ exports.getCustomers = async (req,res,next)=>{
     }
 };
 
+// Get all Merchant Customer 
+exports.getMerchantCustomer = async (req, res, next)=>{
+    let {...query} = req.params
+    let {page,limit } = req.query;
+    page = page || 1;
+    limit = limit || 100;
+    try{
+        let allTransation = await TransactionRepository.all(query)
+        let userIds = []
+        allTransation.map(data =>{
+            userIds.push(
+            data.customerId)
+        })
+        let dob = await CustomerRepository.all({
+            $or: [{customerId: {$in: userIds}}]
+        }, {_id: -1}, page, limit) 
+        message = `Customers for Merchant loaded successfully`
+        return createSuccessResponse(res, dob ,message)
+    }catch(error){
+        console.log(error)
+        return res.status(400).send({
+            status:400,
+            message: "Error",
+            error: error   
+        });
+    }
+}

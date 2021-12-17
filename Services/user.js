@@ -7,7 +7,7 @@ const clientSecret = process.env.clientSecret
 async function createUser(phoneNumber){
     let raw = { 
             "name":"Unnamed User",
-            "email": "mail3@mail.com",
+            "email": "mail04@mail.com",
             "phoneNumber": phoneNumber,
             "password":"pmb",
             "age":12,

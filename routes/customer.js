@@ -18,10 +18,11 @@ const { validate } = require("../Middleware/helper");
 
 router.post("/pay/initiate", validate(schema.paymentSchema.paymentPost, 'body') ,customerController.initiatePayment);
 
-
 router.post("/pay/verify",  customerController.verifyPayment);
 
 router.get("/customer", customerController.getCustomers)
+
+router.get("/merchant/customer/:merchantId", customerController.getMerchantCustomer)
 
 
 module.exports = router;
