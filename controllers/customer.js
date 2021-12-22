@@ -1,17 +1,20 @@
 const CustomerRepository = require("../models/CustomerRepository");
 const TransactionRepository = require("../models/TransactionRepository");
 const MerchantRepository = require("../models/MerchantRepository");
+const PinRepository = require("../models/PinRepository")
+const md5 = require("md5")
+const uuid = require("uuid");
 const { createInvoice } = require("../Services/invoice");
 const { initiateCharge, verifyPayment } = require("../Services/payment");
 const { createUser } = require("../Services/user");
-const uuid = require("uuid");
+
 
 
 exports.initiatePayment = async (req,res,next)=>{
     let {phoneNumber, paymentCode, amount, paymentAuthId, provider } = req.body;
     provider = provider || "providus"
     amount = amount *100
-    let reference = uuid.v4();
+    let reference = uuid.v4();h
     let merchant = await MerchantRepository.findOne({paymentCode: paymentCode})
     if(!merchant){
             return res.status(403).send({
@@ -63,8 +66,16 @@ exports.verifyPayment = async (req,res,next)=>{
     const { reference, code } = req.body;
     try {
         let verify = await verifyPayment(reference,code); 
+        let Transaction = await TransactionRepository.findone({reference: reference})
+        if(!Transaction){
+            return res.status(403).send({
+                status:403,
+                message: "No Transaction with this Reference Code"
+            })
+        }
+        await TransactionRepository.update({reference:reference},{status: verify.status})
         return res.status(200).send({
-            data: verify
+            data: verify.status
         })
     } catch (error) {
         console.log(error)
@@ -158,4 +169,16 @@ exports.getMerchantCustomer = async (req, res, next)=>{
             error: error   
         });
     }
+}
+
+
+exports.createPin = async (req, res, next)=>{
+    let {pin, phoneNumber} = req.body;
+    pin = md5(pin)
+    let createPin = {pin,phoneNumber}
+    await PinRepository.create(createPin)
+    return res.status(200).send({
+        message: "Pin Created Successfully"
+    })
+
 }

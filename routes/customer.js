@@ -20,6 +20,10 @@ router.post("/pay/initiate", validate(schema.paymentSchema.paymentPost, 'body') 
 
 router.post("/pay/verify",  customerController.verifyPayment);
 
+router.post("/create/pin",  customerController.createPin);
+
+// router.post("/validate/pin",  customerController.validatePin);
+
 router.get("/customer", customerController.getCustomers)
 
 router.get("/merchant/customer/:merchantId", customerController.getMerchantCustomer)
