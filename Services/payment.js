@@ -46,10 +46,8 @@ async function verifyPayment(reference,code){
     method: 'POST',
     headers: {  "Accept": "application/json",
                 "client-id": clientId,
-                "client-secret": clientSecret,
-                "Content-Type": "application/json"
+                "client-secret": clientSecret
             },
-    body: JSON.stringify(urlencoded),
     redirect: 'follow'
     };
     try{

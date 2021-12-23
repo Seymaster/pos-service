@@ -7,19 +7,13 @@ const clientSecret = process.env.clientSecret
 async function createUser(phoneNumber){
     let raw = { 
             "name":"Unnamed User",
-            "email": "mail04@mail.com",
             "phoneNumber": phoneNumber,
             "password":"pmb",
             "age":12,
             "dob":"15/01/2012",
             "anyOtherThing":"value",
             "anyOtherThing1":"value1",
-            "parentId":"ffdc48ee-46da-434b-ae85-27f461798848",
-            "options": { 
-                        "verificationType":"email",  
-                        "verification": true,
-                        "redirectURL": "http://google.com"
-                        }
+            "parentId":"ffdc48ee-46da-434b-ae85-27f461798848"
     };
 
     let requestOptions = {
@@ -43,7 +37,7 @@ async function createUser(phoneNumber){
     // console.log(result);
 }
 
-async function findUser(email){
+async function findUser(phoneNumber){
     let requestOptions = {
         method: 'GET',
         headers:{  
@@ -54,7 +48,7 @@ async function findUser(email){
         redirect: 'follow'
         };
         try{
-            const response = await fetch(`${baseUrl}/users/v1/users?email=${email}`, requestOptions)
+            const response = await fetch(`${baseUrl}/users/v1/users?phoneNumber=${phoneNumber}`, requestOptions)
             return  await response.text();
         }
         catch(error){
@@ -106,6 +100,7 @@ async function verifyUser(email){
     }
     // console.log(result);
 }
+
 async function forgotPassword(email){
     let requestOptions = {
         method: 'GET',
@@ -123,8 +118,9 @@ async function forgotPassword(email){
             return {error};
         }
 }
-// var email = "testin121@yopmail.com"
-// verifyUser(email)
+
+// let phoneNumber = "8132461973"
+// createUser(phoneNumber)
 // .then(data=>{
 //         // data = JSON.parse(data.user)
 //         console.log(data)

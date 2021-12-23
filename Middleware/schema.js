@@ -17,7 +17,7 @@ const paymentSchema = {
         paymentCode: Joi.string().required(),
         amount: Joi.number().required(),
         paymentAuthId: Joi.string().required()
-    })
+    }).options({ allowUnknown: true })
 }
 
 

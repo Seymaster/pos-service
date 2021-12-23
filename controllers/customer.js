@@ -14,7 +14,7 @@ exports.initiatePayment = async (req,res,next)=>{
     let {phoneNumber, paymentCode, amount, paymentAuthId, provider } = req.body;
     provider = provider || "providus"
     amount = amount *100
-    let reference = uuid.v4();h
+    let reference = uuid.v4();
     let merchant = await MerchantRepository.findOne({paymentCode: paymentCode})
     if(!merchant){
             return res.status(403).send({
@@ -35,28 +35,46 @@ exports.initiatePayment = async (req,res,next)=>{
             }
             user = user.data
             let customerId = user.user.userId;
-            let newCustomer = {userId: customerId, merchantId,phoneNumber}
+            let newCustomer = {userId: customerId,phoneNumber}
             await CustomerRepository.create(newCustomer)
+            try {
+                let productId = merchant.productId
+                let invoice = await createInvoice(productId,customerId, amount)
+                invoice = JSON.parse(invoice)
+                let invoiceId = invoice.data.id
+                let newTransaction = {reference, customerId, phoneNumber, paymentCode, merchantId, amount, invoiceId}
+                await TransactionRepository.create(newTransaction);
+                let payment = await initiateCharge(customerId,amount,paymentAuthId,reference,invoiceId,provider)
+                payment = JSON.parse(payment)
+                return res.status(200).send({
+                    data: reference
+                })
+            } catch (error) {
+                console.log(error)
+                return res.status(400).send({
+                    message: "Bad Request"
+                })
+            }
+        }else{
+            let customerId = customer.userId
+            try {
+                let productId = merchant.productId
+                let invoice = await createInvoice(productId,customerId, amount)
+                invoice = JSON.parse(invoice)
+                let invoiceId = invoice.data.id
+                let newTransaction = {reference, customerId, phoneNumber, paymentCode, merchantId, amount, invoiceId}
+                await TransactionRepository.create(newTransaction);
+                let payment = await initiateCharge(customerId,amount,paymentAuthId,reference,invoiceId,provider)
+                payment = JSON.parse(payment)
+                return res.status(200).send({
+                    data: reference
+                })
+            } catch (error) {
+                console.log(error)
+                return res.status(400).send({
+                    message: "Bad Request"
+                })
         }
-        let custom = await CustomerRepository.findOne({phoneNumber: phoneNumber})
-        let customerId = custom.userId
-    try {
-        let productId = merchant.productId
-        let invoice = await createInvoice(productId,customerId, amount)
-        invoice = JSON.parse(invoice)
-        let invoiceId = invoice.data.id
-        let newTransaction = {reference, customerId, phoneNumber, paymentCode, merchantId, amount, invoiceId}
-        await TransactionRepository.create(newTransaction);
-        let payment = await initiateCharge(customerId,amount,paymentAuthId,reference,invoiceId,provider)
-        payment = JSON.parse(payment)
-        return res.status(200).send({
-            data: reference
-        })
-    } catch (error) {
-        console.log(error)
-        return res.status(400).send({
-            message: "Bad Request"
-        })
     }
 }
 
@@ -66,24 +84,32 @@ exports.verifyPayment = async (req,res,next)=>{
     const { reference, code } = req.body;
     try {
         let verify = await verifyPayment(reference,code); 
-        let Transaction = await TransactionRepository.findone({reference: reference})
+        verify = JSON.parse(verify)
+        if(verify.error){
+            return res.status(403).send({
+                status:403,
+                message: "Error verifying Transaction",
+                error: verify
+            })
+        }
+        let Transaction = await TransactionRepository.findOne({reference: reference})
         if(!Transaction){
             return res.status(403).send({
                 status:403,
                 message: "No Transaction with this Reference Code"
             })
         }
-        await TransactionRepository.update({reference:reference},{status: verify.status})
+        await TransactionRepository.update({reference:reference},{status: verify.status, updatedAt: Date.now()})
         return res.status(200).send({
-            data: verify.status
+            data: verify
         })
-    } catch (error) {
+    }catch(error) {
         console.log(error)
         return res.status(400).send({
-            message: "Bad Request"
+            message: "Bad Request",
+            error: error
         })
     }
-
 }
 
 // To get all transaction for a Particular merchant/customer with Id
@@ -174,11 +200,45 @@ exports.getMerchantCustomer = async (req, res, next)=>{
 
 exports.createPin = async (req, res, next)=>{
     let {pin, phoneNumber} = req.body;
-    pin = md5(pin)
-    let createPin = {pin,phoneNumber}
-    await PinRepository.create(createPin)
+    let customer = await CustomerRepository.findOne({phoneNumber: phoneNumber})
+    if(!customer){
+        let { user } = await createUser(phoneNumber);
+        user = JSON.parse(user);
+        if(user.error){
+            return res.status(403).send({
+                status:403,
+                message: user
+            })
+        }
+        // user = user.data
+        // let customerId = user.user.userId;
+        pin = md5(pin)
+        let createPin = {pin,phoneNumber}
+        await PinRepository.create(createPin)
+    }
     return res.status(200).send({
         message: "Pin Created Successfully"
     })
+
+}
+
+exports.fetchSumAmount = async (req,res,next) =>{
+    let {merchantId} = req.query;
+    try{
+    
+        let total = await TransactionRepository.aggregate({merchantId:merchantId, status: "PENDING"})
+        return res.status(200).send({
+            status:200,
+            message: "Total Transaction Loaded Successfully",
+            data: total[0].total
+        })
+    }catch(error){
+        console.log(error)
+        return res.status(400).send({
+            status: 400,
+            message: "Bad Request",
+            error: error
+        })
+    }
 
 }
