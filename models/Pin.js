@@ -4,8 +4,8 @@ const mongoose = require("mongoose")
 const mongoosePaginate = require("mongoose-paginate");
 
 const Schema    = mongoose.Schema({
-    pin: {type: String, require: true, unique: true},
-    phoneNumber: {type: String, require: true},
+    pin: {type: String, require: true},
+    phoneNumber: {type: String, require: true, unique: true},
     createdAt: {type: Date, default: Date.now}
 }, 
 {

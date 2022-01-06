@@ -20,11 +20,11 @@ router.post("/pay/initiate", validate(schema.paymentSchema.paymentPost, 'body') 
 
 router.post("/pay/checkout",  customerController.verifyPayment);
 
-router.post("/create/pin",  customerController.createPin);
+router.post("/create/pin",  customerController.updatePin);
 
 // router.post("/validate/pin",  customerController.validatePin);
 
-router.get("/merchant/total", customerController.fetchSumAmount)
+router.get("/merchant/reports", customerController.fetchReport)
 
 router.get("/customer", customerController.getCustomers)
 

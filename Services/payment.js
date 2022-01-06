@@ -11,7 +11,7 @@ async function initiateCharge(userId,amount,paymentAuthId,reference,invoiceId,pr
                         "userId": userId,
                         "amount": amount,
                         "paymentAuthId": paymentAuthId,
-                        "transactionReference": reference,
+                        "transactionId": reference,
                         "narration": "merchant",
                         "invoiceId": invoiceId,
                         "provider": provider

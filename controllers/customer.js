@@ -183,7 +183,7 @@ exports.getMerchantCustomer = async (req, res, next)=>{
             data.customerId)
         })
         let dob = await CustomerRepository.all({
-            $or: [{customerId: {$in: userIds}}]
+            $or: [{userId: {$in: userIds}}]
         }, {_id: -1}, page, limit) 
         message = `Customers for Merchant loaded successfully`
         return createSuccessResponse(res, dob ,message)
@@ -198,9 +198,10 @@ exports.getMerchantCustomer = async (req, res, next)=>{
 }
 
 
-exports.createPin = async (req, res, next)=>{
+exports.updatePin = async (req, res, next)=>{
     let {pin, phoneNumber} = req.body;
     let customer = await CustomerRepository.findOne({phoneNumber: phoneNumber})
+    console.log(customer)
     if(!customer){
         let { user } = await createUser(phoneNumber);
         user = JSON.parse(user);
@@ -210,27 +211,48 @@ exports.createPin = async (req, res, next)=>{
                 message: user
             })
         }
-        // user = user.data
-        // let customerId = user.user.userId;
+        let userId = user.data.data.id
         pin = md5(pin)
-        let createPin = {pin,phoneNumber}
-        await PinRepository.create(createPin)
+        let newCustomer = {userId,phoneNumber,pin}
+        await CustomerRepository.create(newCustomer)
+        return res.status(200).send({
+            message: "Pin Created Successfully"
+        })
+    }else{
+        pin = md5(pin)
+        await CustomerRepository.update({phoneNumber:phoneNumber},{pin: pin})
+        return res.status(200).send({
+            message: "Pin Created Successfully"
+        })
     }
-    return res.status(200).send({
-        message: "Pin Created Successfully"
-    })
-
 }
 
-exports.fetchSumAmount = async (req,res,next) =>{
-    let {merchantId} = req.query;
+exports.fetchReport = async (req,res,next) =>{
+    let {page ,limit, ...query} = req.query;
+    page = page || 1;
+    limit = limit || 100;
     try{
     
-        let total = await TransactionRepository.aggregate({merchantId:merchantId, status: "PENDING"})
+        let revenue = await TransactionRepository.aggregate(query, {status: "PENDING"})
+        let transaction = await TransactionRepository.all(query, {_id: -1}, page, limit)
+        let customers = []
+        transaction.docs.map(data =>{
+            customers.push(
+            data.customerId)
+        })
+        customers = await CustomerRepository.all({
+            $or: [{userId: {$in: customers}}]
+        }, {_id: -1}, page, limit) 
+
+        let data = {
+            totalRevenue: revenue[0].total,
+            totalTransactions: transaction.total,
+            totalCustomers: customers.total
+        }
         return res.status(200).send({
             status:200,
-            message: "Total Transaction Loaded Successfully",
-            data: total[0].total
+            message: "Reports Loaded Successfully",
+            data: data
         })
     }catch(error){
         console.log(error)
