@@ -1,9 +1,9 @@
 const CustomerRepository = require("../models/CustomerRepository");
 const TransactionRepository = require("../models/TransactionRepository");
 const MerchantRepository = require("../models/MerchantRepository");
-const PinRepository = require("../models/PinRepository")
 const md5 = require("md5")
 const uuid = require("uuid");
+const moment = require("moment")
 const { createInvoice } = require("../Services/invoice");
 const { initiateCharge, verifyPayment } = require("../Services/payment");
 const { createUser } = require("../Services/user");
@@ -47,9 +47,10 @@ exports.initiatePayment = async (req,res,next)=>{
                 let payment = await initiateCharge(customerId,amount,paymentAuthId,reference,invoiceId,provider)
                 payment = JSON.parse(payment)
                 return res.status(200).send({
-                    data: reference
+                    data: reference,
+                    payment: payment
                 })
-            } catch (error) {
+            }catch (error) {
                 console.log(error)
                 return res.status(400).send({
                     message: "Bad Request"
@@ -81,9 +82,9 @@ exports.initiatePayment = async (req,res,next)=>{
 
 // To verify Payment
 exports.verifyPayment = async (req,res,next)=>{
-    const { reference, code } = req.body;
+    const { reference, code, amount } = req.body;
     try {
-        let verify = await verifyPayment(reference,code); 
+        let verify = await verifyPayment(reference,code,amount); 
         verify = JSON.parse(verify)
         if(verify.error){
             return res.status(403).send({
@@ -99,9 +100,9 @@ exports.verifyPayment = async (req,res,next)=>{
                 message: "No Transaction with this Reference Code"
             })
         }
-        await TransactionRepository.update({reference:reference},{status: verify.status, updatedAt: Date.now()})
+        await TransactionRepository.update({reference:reference},{status: verify.data.status, updatedAt: Date.now()})
         return res.status(200).send({
-            data: verify
+            data: verify.data.status
         })
     }catch(error) {
         console.log(error)
@@ -176,7 +177,7 @@ exports.getMerchantCustomer = async (req, res, next)=>{
     page = page || 1;
     limit = limit || 100;
     try{
-        let allTransation = await TransactionRepository.all(query)
+        let allTransation = await TransactionRepository.all(query, {_id: -1}, page, limit)
         let userIds = []
         allTransation.map(data =>{
             userIds.push(
@@ -216,16 +217,54 @@ exports.updatePin = async (req, res, next)=>{
         let newCustomer = {userId,phoneNumber,pin}
         await CustomerRepository.create(newCustomer)
         return res.status(200).send({
-            message: "Pin Created Successfully"
+            message: "Pin Updated Successfully"
         })
     }else{
         pin = md5(pin)
         await CustomerRepository.update({phoneNumber:phoneNumber},{pin: pin})
         return res.status(200).send({
-            message: "Pin Created Successfully"
+            message: "Pin Updated Successfully"
         })
     }
 }
+
+// let now1 = new Date("2022-01-01T00:00:00+01:00")/ 1000
+// console.log(now1)
+
+// console.log()
+exports.validatePin = async (req, res, next)=>{
+    // let {pin, phoneNumber} = req.body;
+    let {page,limit } = req.query;
+    page = page || 1;
+    limit = limit || 10;
+    let query = {
+        status: "SUCCESS",
+        createdAt:
+        {
+            $lt: new Date()
+            // $gte: new Date("2022-01-01T00:00:00+01:00")
+
+        }
+    }
+    console.log(moment().subtract(7,"days").startOf("days"))
+    try{
+    let allTransation = await TransactionRepository.aggregateReportDate(query)
+    // let customer = await CustomerRepository.findOne({phoneNumber: phoneNumber})
+    // if(!customer){
+    //         return res.status(403).send({
+    //             status:403,
+    //             message: "User Not Found"
+    //         })
+    //     }
+    // pin = customer.pin
+    // pin = md5(pin)
+    return res.status(200).send({
+        message: allTransation
+    })}catch(err){
+        console.log(err)
+    }
+}
+
 
 exports.fetchReport = async (req,res,next) =>{
     let {page ,limit, ...query} = req.query;
@@ -233,8 +272,10 @@ exports.fetchReport = async (req,res,next) =>{
     limit = limit || 100;
     try{
     
-        let revenue = await TransactionRepository.aggregate(query, {status: "PENDING"})
+        let revenue = await TransactionRepository.aggregate(query, {status: "SUCCESS"})
         let transaction = await TransactionRepository.all(query, {_id: -1}, page, limit)
+        let transactionGraph = await TransactionRepository.aggregateReportDate({status: "SUCCESS",createdAt:{$lt: new Date()}})
+        let revenueGraph = await TransactionRepository.aggregateRevenue({createdAt:{$lt: new Date()}})
         let customers = []
         transaction.docs.map(data =>{
             customers.push(
@@ -247,7 +288,9 @@ exports.fetchReport = async (req,res,next) =>{
         let data = {
             totalRevenue: revenue[0].total,
             totalTransactions: transaction.total,
-            totalCustomers: customers.total
+            totalCustomers: customers.total,
+            transactionGraph,
+            revenueGraph
         }
         return res.status(200).send({
             status:200,

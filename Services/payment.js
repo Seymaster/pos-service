@@ -40,14 +40,19 @@ async function initiateCharge(userId,amount,paymentAuthId,reference,invoiceId,pr
 };
 
 
-async function verifyPayment(reference,code){
+async function verifyPayment(reference,code,amount){
     let result;
+    let urlencoded =  {
+        "amount": amount,
+    }
     let requestOptions = {
     method: 'POST',
     headers: {  "Accept": "application/json",
                 "client-id": clientId,
-                "client-secret": clientSecret
+                "client-secret": clientSecret,
+                "Content-Type": "application/json"
             },
+    body: JSON.stringify(urlencoded),
     redirect: 'follow'
     };
     try{
@@ -62,13 +67,17 @@ async function verifyPayment(reference,code){
     return await result;
 };
 
+
+
 module.exports = { initiateCharge, verifyPayment }
 
 // let paymentAuthId = "805d18f8-70df-4896-9f91-b46e7143191d"
 // let userId = "605cb7d2ff6e14001c0b5ad0"
 // let invoiceId = "605cb7d2ff6e14001c0b5ad0"
-// let amount = 300
-// initiateCharge(paymentAuthId,userId,amount)
+// let amount = 2300
+// let reference = "61250e24-c918-4708-8468-c3d86981ad75"
+// let code = "4777"
+// verifyPayment(reference,code,amount)
 // .then(data=>{
 //         console.log(data)
 //     }).catch(err =>{

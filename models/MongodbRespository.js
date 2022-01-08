@@ -54,6 +54,28 @@ class MongodbRepository {
         return this.Model.insertMany(data)
     }
 
+    aggregateRevenue(condition){
+        return this.Model.aggregate([{$match :condition},{$group:{_id: 
+            {"year": {"$year": "$createdAt"},
+            "month": {"$month": "$createdAt"},
+            "day":   {"$dayOfMonth": "$createdAt" }},
+            "total": {"$sum": "$amount"}
+            }
+            }
+        ])
+    }
+
+    aggregateReportDate(condition){
+        return this.Model.aggregate([{$match :condition},{$group:{_id: 
+            {"year": {"$year": "$createdAt"},
+            "month": {"$month": "$createdAt"},
+            "day":   {"$dayOfMonth": "$createdAt" }},
+            "count": {"$sum": 1}
+            }
+            }
+        ])
+    }
+
     aggregate(condition){
         return this.Model.aggregate([{$match :condition},{$group:{_id: null,total:{$sum : "$amount"}}}])
     }
