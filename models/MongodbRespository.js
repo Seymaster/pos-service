@@ -55,13 +55,16 @@ class MongodbRepository {
     }
 
     aggregateRevenue(condition){
-        return this.Model.aggregate([{$match :condition},{$group:{_id: 
-            {"year": {"$year": "$createdAt"},
-            "month": {"$month": "$createdAt"},
-            "day":   {"$dayOfMonth": "$createdAt" }},
-            "total": {"$sum": "$amount"}
+        return this.Model.aggregate(
+            [ {$match :condition},
+                {$group:{_id: 
+                {"year": {"$year": "$createdAt"},
+                "month": {"$month": "$createdAt"},
+                "day":   {"$dayOfMonth": "$createdAt" }},
+                "total": {"$sum": "$amount"}
+                }
             }
-            }
+            ,{$sort:{"_id.day": 1}}
         ])
     }
 
@@ -72,7 +75,7 @@ class MongodbRepository {
             "day":   {"$dayOfMonth": "$createdAt" }},
             "count": {"$sum": 1}
             }
-            }
+            },{$sort:{"_id.day": 1}}
         ])
     }
 

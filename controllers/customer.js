@@ -233,38 +233,19 @@ exports.updatePin = async (req, res, next)=>{
 
 // console.log()
 exports.validatePin = async (req, res, next)=>{
-    // let {pin, phoneNumber} = req.body;
-    let {page,limit } = req.query;
-    page = page || 1;
-    limit = limit || 10;
-    let query = {
-        merchantId: "61baf14d123d30001cfff524",
-        status: "SUCCESS",
-        createdAt:
-        {
-            $lt: new Date()
-            // $gte: new Date("2022-01-01T00:00:00+01:00")
-
+    let {pin, phoneNumber} = req.body;
+    let customer = await CustomerRepository.findOne({phoneNumber: phoneNumber})
+    if(!customer){
+            return res.status(403).send({
+                status:403,
+                message: "User Not Found"
+            })
         }
-    }
-    try{
-    let allTransation = await TransactionRepository.aggregateReportDate(query)
-    let data = allTransation[0]
-    // delete data._id
-    // let customer = await CustomerRepository.findOne({phoneNumber: phoneNumber})
-    // if(!customer){
-    //         return res.status(403).send({
-    //             status:403,
-    //             message: "User Not Found"
-    //         })
-    //     }
-    // pin = customer.pin
-    // pin = md5(pin)
+    pin = customer.pin
+    pin = md5(pin)
     return res.status(200).send({
-        data
-    })}catch(err){
-        console.log(err)
-    }
+        message: "Pin Validated Successfully"
+    })
 }
 
 
@@ -276,8 +257,15 @@ exports.fetchReport = async (req,res,next) =>{
     
         let revenue = await TransactionRepository.aggregate(query, {status: "SUCCESS"})
         let transaction = await TransactionRepository.all(query, {_id: -1}, page, limit)
-        let transactionGraph = await TransactionRepository.aggregateReportDate(query, {status: "SUCCESS",createdAt:{$lt: new Date()}})
-        let revenueGraph = await TransactionRepository.aggregateRevenue(query, {createdAt:{$lt: new Date()}})
+        let merchantId = query.merchantId
+        let transactionGraph = await TransactionRepository.aggregateReportDate( {merchantId: merchantId, status: "PENDING",createdAt:{
+            $lt: new Date(moment().toISOString()),
+            $gte: new Date(moment().subtract(7, "days").startOf("day").toISOString())
+        }})
+        let revenueGraph = await TransactionRepository.aggregateRevenue({merchantId: merchantId, status: "SUCCESS", createdAt:{
+            $lt: new Date(moment().toISOString()),
+            $gte: new Date(moment().subtract(7, "days").startOf("day").toISOString())
+        }})
         let customers = []
         transaction.docs.map(data =>{
             customers.push(
