@@ -23,7 +23,7 @@ app.use(cors({origin: "*"}));
 app.use("/api/v1", merchantRouter)
 app.use("/api/v1", customerRouter)
 
-mongoose.set("debug", true)
+// mongoose.set("debug", true)
 
 mongoose.connect(config.dbUrl, {
     useNewUrlParser: true, useUnifiedTopology: true

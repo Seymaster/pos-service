@@ -202,7 +202,6 @@ exports.getMerchantCustomer = async (req, res, next)=>{
 exports.updatePin = async (req, res, next)=>{
     let {pin, phoneNumber} = req.body;
     let customer = await CustomerRepository.findOne({phoneNumber: phoneNumber})
-    console.log(customer)
     if(!customer){
         let { user } = await createUser(phoneNumber);
         user = JSON.parse(user);
@@ -228,10 +227,7 @@ exports.updatePin = async (req, res, next)=>{
     }
 }
 
-// let now1 = new Date("2022-01-01T00:00:00+01:00")/ 1000
-// console.log(now1)
 
-// console.log()
 exports.validatePin = async (req, res, next)=>{
     let {pin, phoneNumber} = req.body;
     let customer = await CustomerRepository.findOne({phoneNumber: phoneNumber})
@@ -241,11 +237,18 @@ exports.validatePin = async (req, res, next)=>{
                 message: "User Not Found"
             })
         }
-    pin = customer.pin
-    pin = md5(pin)
-    return res.status(200).send({
-        message: "Pin Validated Successfully"
-    })
+    else{ 
+        pin = md5(pin)
+        if(pin === customer.pin){
+            return res.status(200).send({
+            message: "Pin Validated Successfully"
+        })
+        }else{
+            return res.status(200).send({
+            message: "Pin Not Matched"
+            }) 
+        }
+    }
 }
 
 
