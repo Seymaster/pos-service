@@ -4,9 +4,10 @@ const MerchantRepository = require("../models/MerchantRepository");
 const md5 = require("md5")
 const uuid = require("uuid");
 const moment = require("moment")
+const cron = require("node-cron")
 const { createInvoice } = require("../Services/invoice");
 const { initiateCharge, verifyPayment } = require("../Services/payment");
-const { createUser } = require("../Services/user");
+const { createUser, findUser, createNewUser } = require("../Services/user");
 
 
 
@@ -25,19 +26,10 @@ exports.initiatePayment = async (req,res,next)=>{
     let merchantId = merchant.userId
     let customer = await CustomerRepository.findOne({phoneNumber: phoneNumber})
         if(!customer){
-            let { user } = await createUser(phoneNumber);
-            user = JSON.parse(user);
-            if(user.error){
-                return res.status(403).send({
-                    status:403,
-                    message: user
-                })
-            }
-            user = user.data
-            let customerId = user.user.userId;
-            let newCustomer = {userId: customerId,phoneNumber}
-            await CustomerRepository.create(newCustomer)
-            try {
+            try{
+                let customerId = await createNewUser(phoneNumber)
+                let newCustomer = {userId: customerId, phoneNumber}
+                await CustomerRepository.create(newCustomer)
                 let productId = merchant.productId
                 let invoice = await createInvoice(productId,customerId, amount)
                 invoice = JSON.parse(invoice)
@@ -46,9 +38,9 @@ exports.initiatePayment = async (req,res,next)=>{
                 await TransactionRepository.create(newTransaction);
                 let payment = await initiateCharge(customerId,amount,paymentAuthId,reference,invoiceId,provider)
                 payment = JSON.parse(payment)
+                console.log("here 2")
                 return res.status(200).send({
-                    data: reference,
-                    payment: payment
+                    data: reference
                 })
             }catch (error) {
                 console.log(error)
@@ -56,25 +48,26 @@ exports.initiatePayment = async (req,res,next)=>{
                     message: "Bad Request"
                 })
             }
-        }else{
-            let customerId = customer.userId
-            try {
-                let productId = merchant.productId
-                let invoice = await createInvoice(productId,customerId, amount)
-                invoice = JSON.parse(invoice)
-                let invoiceId = invoice.data.id
-                let newTransaction = {reference, customerId, phoneNumber, paymentCode, merchantId, amount, invoiceId}
-                await TransactionRepository.create(newTransaction);
-                let payment = await initiateCharge(customerId,amount,paymentAuthId,reference,invoiceId,provider)
-                payment = JSON.parse(payment)
-                return res.status(200).send({
-                    data: reference
-                })
-            } catch (error) {
-                console.log(error)
-                return res.status(400).send({
-                    message: "Bad Request"
-                })
+    }else{
+        let customerId = customer.userId
+        try {
+            let productId = merchant.productId
+            let invoice = await createInvoice(productId,customerId, amount)
+            invoice = JSON.parse(invoice)
+            let invoiceId = invoice.data.id
+            let newTransaction = {reference, customerId, phoneNumber, paymentCode, merchantId, amount, invoiceId}
+            await TransactionRepository.create(newTransaction);
+            let payment = await initiateCharge(customerId,amount,paymentAuthId,reference,invoiceId,provider)
+            payment = JSON.parse(payment)
+            console.log("here 3")
+            return res.status(200).send({
+                data: reference
+            })
+        }catch(error) {
+            console.log(error)
+            return res.status(400).send({
+                message: "Bad Request"
+            })
         }
     }
 }
@@ -265,10 +258,16 @@ exports.fetchReport = async (req,res,next) =>{
             $lt: new Date(moment().toISOString()),
             $gte: new Date(moment().subtract(7, "days").startOf("day").toISOString())
         }})
+        console.log(transactionGraph)
         let revenueGraph = await TransactionRepository.aggregateRevenue({merchantId: merchantId, status: "SUCCESS", createdAt:{
             $lt: new Date(moment().toISOString()),
             $gte: new Date(moment().subtract(7, "days").startOf("day").toISOString())
         }})
+        // transactionCount = []
+        // transactionGraph.map(data =>{
+        //     transactionCount.push(
+        //     ({date: data._id, count: data.count}))
+        // })
         let customers = []
         transaction.docs.map(data =>{
             customers.push(
@@ -298,5 +297,18 @@ exports.fetchReport = async (req,res,next) =>{
             error: error
         })
     }
-
 }
+
+let cronTransaction = cron.schedule("* 12 * * *", async function(){
+    let reference = "cron reference"
+    let customerId = "cron customerId"
+    let phoneNumber = "cron phoneNumber"
+    let paymentCode = "cron paymentCode"
+    let merchantId = "cron merchantId"
+    let amount = 0
+    let invoiceId= "cron invoiceId"
+    let newTransaction = {reference, customerId, phoneNumber, paymentCode, merchantId, amount, invoiceId}
+    try{await TransactionRepository.create(newTransaction)}
+    catch(e){console.log(e)}
+})
+// cronTransaction.start()

@@ -17,8 +17,8 @@ const Schema    = mongoose.Schema({
             delete ret._id;
         }
     }
-}
-);
+});
+
 Schema.index({"$**":"text"});
 Schema.plugin(mongoosePaginate);
 const Customer =  mongoose.model("Customer", Schema)

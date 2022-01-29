@@ -71,13 +71,13 @@ async function verifyPayment(reference,code,amount){
 
 module.exports = { initiateCharge, verifyPayment }
 
-// let paymentAuthId = "805d18f8-70df-4896-9f91-b46e7143191d"
-// let userId = "605cb7d2ff6e14001c0b5ad0"
-// let invoiceId = "605cb7d2ff6e14001c0b5ad0"
+// let paymentAuthId = "61f3c27afa9ee1001dc8cec4d"
+// let userId = "61dd4627123d30001cfff5c2"
+// let invoiceId = "61f3c26271677b001c36808b"
 // let amount = 2300
 // let reference = "61250e24-c918-4708-8468-c3d86981ad75"
 // let code = "4777"
-// verifyPayment(reference,code,amount)
+// initiatePayment(reference,code,amount)
 // .then(data=>{
 //         console.log(data)
 //     }).catch(err =>{

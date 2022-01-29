@@ -119,6 +119,22 @@ async function forgotPassword(email){
         }
 }
 
+
+async function createNewUser(phoneNumber){
+    try {
+        let fetchUser = await findUser(phoneNumber)
+        fetchUser = JSON.parse(fetchUser)
+        if(fetchUser.data.length === 0 ){
+            let newUser = await createUser(phoneNumber)
+            newUser= JSON.parse(newUser.user)
+            return newUser.data.user.userId
+        }
+        return fetchUser.data[0].userId 
+    } catch(error) {
+        return error
+    }
+}
+
 // let phoneNumber = "8132461973"
 // createUser(phoneNumber)
 // .then(data=>{
@@ -128,4 +144,4 @@ async function forgotPassword(email){
 //         console.log(err)
 //     })
 
-module.exports = { createUser, findUser, findUserbyId, verifyUser, forgotPassword };
+module.exports = { createUser, findUser, findUserbyId, verifyUser, forgotPassword, createNewUser };

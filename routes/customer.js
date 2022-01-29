@@ -31,4 +31,5 @@ router.get("/customer", customerController.getCustomers)
 router.get("/merchant/customer/:merchantId", customerController.getMerchantCustomer)
 
 
+
 module.exports = router;
