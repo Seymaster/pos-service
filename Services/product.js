@@ -35,8 +35,8 @@ async function createProduct(name, merchantId){
     return await result;
 }
 
-// var eventName = 'gr2ac787'
-// var merchantId = "61a6756bca1ea2001c6c5329"
+// var eventName = 'newc787'
+// var merchantId = "6200f976123d30001cfff6c0"
 // createProduct(eventName, merchantId)
 // .then(data=>{
 //         console.log(data)

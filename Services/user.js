@@ -37,7 +37,7 @@ async function createUser(phoneNumber){
     // console.log(result);
 }
 
-async function findUser(phoneNumber){
+async function findUser(email){
     let requestOptions = {
         method: 'GET',
         headers:{  
@@ -48,7 +48,7 @@ async function findUser(phoneNumber){
         redirect: 'follow'
         };
         try{
-            const response = await fetch(`${baseUrl}/users/v1/users?phoneNumber=${phoneNumber}`, requestOptions)
+            const response = await fetch(`${baseUrl}/users/v1/users?email=${email}`, requestOptions)
             return  await response.text();
         }
         catch(error){
@@ -56,7 +56,7 @@ async function findUser(phoneNumber){
         }
 }
 
-async function findUserbyId(user_id){
+async function findUserbyId(userId){
     let requestOptions = {
         method: 'GET',
         headers:{   "client-secret": clientSecret,
@@ -66,7 +66,7 @@ async function findUserbyId(user_id){
         redirect: 'follow'
         };
         try{
-            const response = await fetch(`${baseUrl}/users/v1/users?userId=${user_id}`, requestOptions)
+            const response = await fetch(`${baseUrl}/users/v1/users?userId=${userId}`, requestOptions)
             return  await response.text();
         }
         catch(error){
@@ -135,8 +135,8 @@ async function createNewUser(phoneNumber){
     }
 }
 
-// let phoneNumber = "8132461973"
-// createUser(phoneNumber)
+// let email = "6200f976123d30001cfff6c0"
+// findUserbyId(email)
 // .then(data=>{
 //         // data = JSON.parse(data.user)
 //         console.log(data)

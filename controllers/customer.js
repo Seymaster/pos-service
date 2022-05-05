@@ -79,6 +79,7 @@ exports.verifyPayment = async (req,res,next)=>{
     try {
         let verify = await verifyPayment(reference,code,amount); 
         verify = JSON.parse(verify)
+        console.log(verify)
         if(verify.error){
             return res.status(403).send({
                 status:403,
@@ -293,22 +294,22 @@ exports.fetchReport = async (req,res,next) =>{
         console.log(error)
         return res.status(400).send({
             status: 400,
-            message: "Bad Request",
+            message: "No Report for this Account",
             error: error
         })
     }
 }
 
-let cronTransaction = cron.schedule("* 12 * * *", async function(){
-    let reference = "cron reference"
-    let customerId = "cron customerId"
-    let phoneNumber = "cron phoneNumber"
-    let paymentCode = "cron paymentCode"
-    let merchantId = "cron merchantId"
-    let amount = 0
-    let invoiceId= "cron invoiceId"
-    let newTransaction = {reference, customerId, phoneNumber, paymentCode, merchantId, amount, invoiceId}
-    try{await TransactionRepository.create(newTransaction)}
-    catch(e){console.log(e)}
-})
+// let cronTransaction = cron.schedule("* 12 * * *", async function(){
+//     let reference = "cron reference"
+//     let customerId = "cron customerId"
+//     let phoneNumber = "cron phoneNumber"
+//     let paymentCode = "cron paymentCode"
+//     let merchantId = "cron merchantId"
+//     let amount = 0
+//     let invoiceId= "cron invoiceId"
+//     let newTransaction = {reference, customerId, phoneNumber, paymentCode, merchantId, amount, invoiceId}
+//     try{await TransactionRepository.create(newTransaction)}
+//     catch(e){console.log(e)}
+// })
 // cronTransaction.start()

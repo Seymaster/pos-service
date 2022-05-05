@@ -38,9 +38,9 @@ async function createInvoice(productId,userId,amount){
 
 module.exports = { createInvoice }
 
-// let productId = "fae242ff-82d7-47b1-bd19-60944ab727fa"
-// let userId = "61a67081ca1ea2001c6c5313"
-// let amount = 300
+// let productId = "0a15d2bc-1c8c-4b83-a3e5-86b1e074b246"
+// let userId = "61bdb499123d30001cfff59c"
+// let amount = 1000
 // createInvoice(productId,userId,amount)
 // .then(data=>{
 //         console.log(data)
