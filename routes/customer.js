@@ -9,25 +9,27 @@
 |
 |
 */
-
 const express = require("express");
 const router  = express.Router();
-const merchantController = require("../controllers/merchant")
 const customerController = require("../controllers/customer")
 const schema = require("../Middleware/schema");
 const { validate } = require("../Middleware/helper");
 
 
-router.post("/merchants", validate(schema.merchantSchema.merchantPost, 'body'),  merchantController.createMerchant)
+router.post("/pay/initiate", validate(schema.paymentSchema.paymentPost, 'body') ,customerController.initiatePayment);
+
+router.post("/pay/checkout",  customerController.verifyPayment);
+
+router.put("/update/pin",  customerController.updatePin);
+
+router.post("/validate/pin",  customerController.validatePin);
+
+router.get("/merchant/reports", customerController.fetchReport)
+
+router.get("/customer", customerController.getCustomers)
+
+router.get("/merchant/customer/:merchantId", customerController.getMerchantCustomer)
 
 
-// To get all transactions by MechantId/customerId
-router.get("/transactions", customerController.getTransaction)
-
-// router.get("/graph", merchantController.fetchGraphData)
-
-router.get("/merchants", merchantController.fetchMerchant)
-
-router.post("/merchant/withdraw", merchantController.merchantWithdraw)
 
 module.exports = router;

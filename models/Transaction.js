@@ -4,13 +4,14 @@ const mongoose = require("mongoose")
 const mongoosePaginate = require("mongoose-paginate");
 
 const Schema    = mongoose.Schema({
-    userId: {type: String, require: true, unique: true},
-    productId: {type: String, require: true},
-    name: {type: String, require: true},
-    paymentCode: {type: String, require: true, unique: true},
-    industry: {type: String, require: true},
-    email: {type: String, require: true},
+    reference: {type: String, require: true},
+    invoiceId: {type: String, require: false, default: null},
+    customerId: {type: String, require: true},
     phoneNumber: {type: String, require: true},
+    paymentCode: {type: String, require: true},
+    amount: {type: Number, required: true},
+    merchantId: {type: String, require: true},
+    status: {type: String, require: false, default: "PENDING"},
     createdAt: {type: Date, default: Date.now},
     updatedAt: {type: Date, default: null}
 }, 
@@ -26,8 +27,8 @@ const Schema    = mongoose.Schema({
 );
 Schema.index({"$**":"text"});
 Schema.plugin(mongoosePaginate);
-const Merchant =  mongoose.model("Merchant", Schema)
+const Transaction =  mongoose.model("Transaction", Schema)
 
 
 
-module.exports = Merchant;
+module.exports = Transaction;

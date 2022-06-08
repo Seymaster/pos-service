@@ -7,6 +7,7 @@ const cors    = require("cors");
 const mongoose = require("mongoose")
 const config   = require("./config/mongo");
 const merchantRouter = require("./routes/merchant")
+const customerRouter = require("./routes/customer")
 
 mongoose.Promise = global.Promise;
 
@@ -16,11 +17,13 @@ app.listen(PORT, (err)=> {
 })
 
 
-app.use(logger("dev"));
+app.use(logger("dev")); //can't save
 app.use(express.json());
 app.use(cors({origin: "*"}));
 app.use("/api/v1", merchantRouter)
+app.use("/api/v1", customerRouter)
 
+mongoose.set("debug", true)
 
 mongoose.connect(config.dbUrl, {
     useNewUrlParser: true, useUnifiedTopology: true
