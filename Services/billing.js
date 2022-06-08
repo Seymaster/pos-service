@@ -26,7 +26,7 @@ async function checkWallet(userId){
 
 async function initiateWithdraw(transferAuthId,userId,amount){
     let result;
-        var raw = JSON.stringify({
+        let raw = JSON.stringify({
             "transferAuthId": transferAuthId,
             "userId": userId,
             "clientId": clientId,
@@ -35,7 +35,7 @@ async function initiateWithdraw(transferAuthId,userId,amount){
             "code" : 1234
         });
     
-    var requestOptions = {
+    let requestOptions = {
       method: 'POST',
       headers: {
         "client-id": clientId,

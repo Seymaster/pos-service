@@ -1,14 +1,12 @@
 const CustomerRepository = require("../models/CustomerRepository");
 const TransactionRepository = require("../models/TransactionRepository");
 const MerchantRepository = require("../models/MerchantRepository");
-const md5 = require("md5")
 const uuid = require("uuid");
-const moment = require("moment")
-const cron = require("node-cron")
 const { createInvoice } = require("../Services/invoice");
 const { initiateCharge, verifyPayment } = require("../Services/payment");
-const { createUser, findUser, createNewUser } = require("../Services/user");
+const { createUser, createNewUser } = require("../Services/user");
 
+console.log(uuid.v4())
 
 
 exports.initiatePayment = async (req,res,next)=>{
