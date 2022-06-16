@@ -41,6 +41,19 @@ const projectSchema = {
     }).options({ allowUnknown: true })
 }
 
+const credentialSchema = {
+    credentialPost: Joi.object().keys({
+        userId: Joi.string().required(),
+        businessType: Joi.string().required(),
+        regNumber: Joi.string().required(),
+        address: Joi.string().required(),
+        city: Joi.string().required(),
+        country: Joi.string().required(),
+        website: Joi.string().required(),
+        coi: Joi.string().required()
+    }).options({ allowUnknown: true })
+}
 
 
-module.exports = { merchantSchema, paymentSchema, businessSchema, projectSchema }
+
+module.exports = { merchantSchema, paymentSchema, businessSchema, projectSchema, credentialSchema }

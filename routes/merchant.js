@@ -14,12 +14,16 @@ const express = require("express");
 const router  = express.Router();
 const merchantController = require("../controllers/merchant")
 const customerController = require("../controllers/customer")
+const credentialController = require("../controllers/credential")
 const schema = require("../Middleware/schema");
 const { validate } = require("../Middleware/helper");
 
 
 router.post("/merchants", validate(schema.merchantSchema.merchantPost, 'body'),  merchantController.createMerchant)
 
+router.post("/merchant/credentials", credentialController.createCredential)
+
+router.get("/merchant/credentials", credentialController.fetchCredential)
 
 // To get all transactions by MechantId/customerId
 router.get("/transactions", customerController.getTransaction)

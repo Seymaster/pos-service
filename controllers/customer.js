@@ -6,7 +6,6 @@ const { createInvoice } = require("../Services/invoice");
 const { initiateCharge, verifyPayment } = require("../Services/payment");
 const { createUser, createNewUser } = require("../Services/user");
 
-console.log(uuid.v4())
 
 
 exports.initiatePayment = async (req,res,next)=>{

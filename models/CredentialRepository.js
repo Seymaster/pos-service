@@ -9,7 +9,7 @@ class CredentialRepository extends Repository{
     }
 
     nonMetaFields(){
-        return ["userId","phoneNumber"]
+        return ["userId","businessType","regNumber","address","landmark","city","country","website","coi","memArt","dp","poba"]
     }
 }
 

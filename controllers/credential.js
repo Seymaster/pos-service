@@ -11,9 +11,9 @@ const CredentialRepository = require("../models/CredentialRepository")
 
 
 exports.createCredential = async (req,res,next)=>{
-    let {userId, name, industry, email, phoneNumber } = req.body;
-    let newCredential = {userId, productId, name, industry, email, phoneNumber };
-    try
+    let {userId,businessType,regNumber,address,landmark,city,country,website,coi,memArt,dp,poba } = req.body;
+    let newCredential = {userId,businessType,regNumber,address,landmark,city,country,website,coi,memArt,dp,poba };
+    try{
         let Credential = await CredentialRepository.create(newCredential)
         return res.status(200).send({
             status:200,
